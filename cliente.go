@@ -34,7 +34,6 @@ func (c *Client) PostRun(input *RunPayload) error {
 		Tags:        input.Tags,
 		ParentId:    input.ParentID,
 		Extras:      input.Extras,
-		Metadata:    input.Metadata,
 	}
 
 	jsonData, err := json.Marshal(payload)
@@ -75,6 +74,41 @@ func (c *Client) Run(input *RunPayload) error {
 
 	return c.PostRun(input)
 
+}
+
+/*
+Single Requests
+If you want to reduce the number of requests you make to LangSmith, you can log runs in a single request. Just be sure to include the outputs or error and fix the end_time all in the post request.
+Below is an example that logs the completion LLM run from above in a single call.
+*/
+
+func (c *Client) RunSingle(input *RunPayload) error {
+	payload := SimplePayload{
+		PostPayload: PostPayload{ // Especificando a struct PostPayload
+			ID:          input.RunID,
+			Name:        input.Name,
+			RunType:     input.RunType,
+			StartTime:   input.StartTime,
+			Inputs:      input.Inputs,
+			SessionName: input.SessionName,
+			Tags:        input.Tags,
+			ParentId:    input.ParentID,
+			Extras:      input.Extras,
+		},
+		PatchPayload: PatchPayload{ // Especificando a struct PatchPayload
+			Outputs: input.Outputs,
+			EndTime: input.EndTime,
+			Events:  input.Events,
+		},
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	err = c.Do(BASE_URL, http.MethodPost, jsonData)
+
+	return err
 }
 
 // client for http requests
