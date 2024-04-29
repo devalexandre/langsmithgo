@@ -30,12 +30,16 @@ type RunPayload struct {
 	Outputs     map[string]interface{} `json:"outputs"`
 	EndTime     time.Time              `json:"end_time"`
 	Extras      map[string]interface{} `json:"extras"`
-	Metadata    map[string]interface{} `json:"metadata"`
 	Events      []Event                `json:"events"`
 }
 
 type Client struct {
 	APIKey string
+}
+
+type SimplePayload struct {
+	PostPayload
+	PatchPayload
 }
 
 type PostPayload struct {
@@ -47,8 +51,7 @@ type PostPayload struct {
 	SessionName string                 `json:"session_name"`
 	Tags        []string               `json:"tags,omitempty"`
 	ParentId    string                 `json:"parent_run_id,omitempty"`
-	Extras      map[string]interface{} `json:"extras,omitempty",`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Extras      map[string]interface{} `json:"extras,omitempty"`
 }
 
 type PatchPayload struct {
