@@ -2,12 +2,15 @@ package langsmithgo
 
 import (
 	"bytes"
+	"sync/atomic"
 	"time"
 )
 
 const (
 	BASE_URL = "https://api.smith.langchain.com/runs"
 )
+
+var runID, parentID atomic.Value
 
 type Response struct {
 	Detail string `json:"detail"`
@@ -90,4 +93,31 @@ func (r RunType) MarshalJSON() ([]byte, error) {
 	buffer.WriteString(r.String())
 	buffer.WriteString(`"`)
 	return buffer.Bytes(), nil
+}
+
+// SetRunId sets the run id
+func SetRunId(runId string) {
+	runID.Store(runId)
+}
+
+// GetRunId gets the run id
+func GetRunId() string {
+	if runID.Load() == nil {
+		return ""
+
+	}
+	return runID.Load().(string)
+}
+
+// SetParentId sets the parent id
+func SetParentId(parentId string) {
+	parentID.Store(parentId)
+}
+
+// GetParentId gets the parent id
+func GetParentId() string {
+	if parentID.Load() == nil {
+		return ""
+	}
+	return parentID.Load().(string)
 }

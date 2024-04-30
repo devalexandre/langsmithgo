@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"net/http"
 	"os"
@@ -24,15 +25,17 @@ func NewClient(apiKey string) *Client {
 
 func (c *Client) PostRun(input *RunPayload) error {
 
+	SetRunId(uuid.New().String())
+
 	payload := PostPayload{
-		ID:          input.RunID,
+		ID:          GetRunId(),
 		Name:        input.Name,
 		RunType:     input.RunType,
 		StartTime:   time.Now().UTC(),
 		Inputs:      input.Inputs,
 		SessionName: input.SessionName,
 		Tags:        input.Tags,
-		ParentId:    input.ParentID,
+		ParentId:    GetParentId(),
 		Extras:      input.Extras,
 	}
 
@@ -41,6 +44,8 @@ func (c *Client) PostRun(input *RunPayload) error {
 		return err
 	}
 	err = c.Do(BASE_URL, http.MethodPost, jsonData)
+
+	SetParentId(GetRunId())
 
 	return err
 }
@@ -83,16 +88,17 @@ Below is an example that logs the completion LLM run from above in a single call
 */
 
 func (c *Client) RunSingle(input *RunPayload) error {
+	SetRunId(uuid.New().String())
 	payload := SimplePayload{
 		PostPayload: PostPayload{ // Especificando a struct PostPayload
-			ID:          input.RunID,
+			ID:          GetRunId(),
 			Name:        input.Name,
 			RunType:     input.RunType,
 			StartTime:   input.StartTime,
 			Inputs:      input.Inputs,
 			SessionName: input.SessionName,
 			Tags:        input.Tags,
-			ParentId:    input.ParentID,
+			ParentId:    GetParentId(),
 			Extras:      input.Extras,
 		},
 		PatchPayload: PatchPayload{ // Especificando a struct PatchPayload
@@ -108,6 +114,7 @@ func (c *Client) RunSingle(input *RunPayload) error {
 	}
 	err = c.Do(BASE_URL, http.MethodPost, jsonData)
 
+	SetParentId(GetRunId())
 	return err
 }
 
