@@ -5,37 +5,53 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"time"
+
+	"github.com/google/uuid"
 )
 
-func NewClient(apiKey string) *Client {
-	apikey := apiKey
-	if apikey == "" {
-		apikey = os.Getenv("LANGSMITH_API_KEY")
+// NewClient creates a new LangSmith client
+// The client requires an API key to authenticate requests.
+// You can get an API key by signing up for a LangSmith account at https://smith.langchain.com
+// The API key can be passed as an argument to the function or set as an environment variable LANGSMITH_API_KEY
+func NewClient() (*Client, error) {
+
+	if os.Getenv("LANGSMITH_API_KEY") == "" {
+		return nil, errors.New("langsmith api key is required")
 	}
+
+	url := os.Getenv("LANGSMITH_URL")
+	if url == "" {
+		url = BASE_URL
+
+	}
+
+	if os.Getenv("LANGSMITH_PROJECT_NAME") == "" {
+		return nil, errors.New("langsmith project name is required")
+	}
+
 	return &Client{
-		APIKey: apiKey,
-	}
+		APIKey:      os.Getenv("LANGSMITH_API_KEY"),
+		baseUrl:     fmt.Sprintf("%s/runs", url),
+		projectName: os.Getenv("LANGSMITH_PROJECT_NAME"),
+	}, nil
 }
 
 func (c *Client) PostRun(input *RunPayload) error {
 
-	SetRunId(uuid.New().String())
-
 	payload := PostPayload{
-		ID:          GetRunId(),
+		ID:          input.RunID,
 		Name:        input.Name,
 		RunType:     input.RunType,
 		StartTime:   time.Now().UTC(),
 		Inputs:      input.Inputs,
-		SessionName: input.SessionName,
+		SessionName: c.projectName,
 		Tags:        input.Tags,
-		ParentId:    GetParentId(),
+		ParentId:    input.ParentID,
 		Extras:      input.Extras,
 	}
 
@@ -43,9 +59,7 @@ func (c *Client) PostRun(input *RunPayload) error {
 	if err != nil {
 		return err
 	}
-	err = c.Do(BASE_URL, http.MethodPost, jsonData)
-
-	SetParentId(GetRunId())
+	err = c.Do(c.baseUrl, http.MethodPost, jsonData)
 
 	return err
 }
@@ -60,7 +74,7 @@ func (c *Client) PatchRun(id string, input *RunPayload) error {
 	if err != nil {
 		return err
 	}
-	err = c.Do(BASE_URL+"/"+id, http.MethodPatch, jsonData)
+	err = c.Do(c.baseUrl+"/"+id, http.MethodPatch, jsonData)
 
 	return err
 }
@@ -88,33 +102,33 @@ Below is an example that logs the completion LLM run from above in a single call
 */
 
 func (c *Client) RunSingle(input *RunPayload) error {
-	SetRunId(uuid.New().String())
+
 	payload := SimplePayload{
-		PostPayload: PostPayload{ // Especificando a struct PostPayload
-			ID:          GetRunId(),
-			Name:        input.Name,
-			RunType:     input.RunType,
-			StartTime:   input.StartTime,
-			Inputs:      input.Inputs,
-			SessionName: input.SessionName,
-			Tags:        input.Tags,
-			ParentId:    GetParentId(),
-			Extras:      input.Extras,
-		},
-		PatchPayload: PatchPayload{ // Especificando a struct PatchPayload
-			Outputs: input.Outputs,
-			EndTime: input.EndTime,
-			Events:  input.Events,
-		},
+		ID:          input.RunID,
+		Name:        input.Name,
+		RunType:     input.RunType,
+		StartTime:   input.StartTime,
+		Inputs:      input.Inputs,
+		SessionName: c.projectName,
+		Tags:        input.Tags,
+		ParentId:    input.ParentID,
+		Extras:      input.Extras,
+		Outputs:     input.Outputs,
+		EndTime:     input.EndTime,
+		Events:      input.Events,
+	}
+
+	if payload.ID == "" {
+		payload.ID = uuid.New().String()
 	}
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
-	err = c.Do(BASE_URL, http.MethodPost, jsonData)
 
-	SetParentId(GetRunId())
+	err = c.Do(c.baseUrl, http.MethodPost, jsonData)
+
 	return err
 }
 
