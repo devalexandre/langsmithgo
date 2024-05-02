@@ -2,23 +2,20 @@ package langsmithgo
 
 import (
 	"bytes"
-	"sync/atomic"
 	"time"
 )
 
 const (
-	BASE_URL = "https://api.smith.langchain.com/runs"
+	BASE_URL = "https://api.smith.langchain.com"
 )
-
-var runID, parentID atomic.Value
 
 type Response struct {
 	Detail string `json:"detail"`
 }
 type Event struct {
 	EventName string `json:"event_name"`
-	Reason    string `json:"reason",omitempty`
-	Value     string `json:"value",omitempty`
+	Reason    string `json:"reason,omitempty"`
+	Value     string `json:"value,omitempty"`
 }
 
 type RunPayload struct {
@@ -37,12 +34,24 @@ type RunPayload struct {
 }
 
 type Client struct {
-	APIKey string
+	APIKey      string // API key for LangSmith
+	baseUrl     string // base url for the LangSmith API
+	projectName string // project name in LangSmith
 }
 
 type SimplePayload struct {
-	PostPayload
-	PatchPayload
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	RunType     RunType                `json:"run_type"`
+	StartTime   time.Time              `json:"start_time"`
+	Inputs      map[string]interface{} `json:"inputs"`
+	SessionName string                 `json:"session_name"`
+	Tags        []string               `json:"tags,omitempty"`
+	ParentId    string                 `json:"parent_run_id,omitempty"`
+	Extras      map[string]interface{} `json:"extras,omitempty"`
+	Events      []Event                `json:"events,omitempty"`
+	Outputs     map[string]interface{} `json:"outputs"`
+	EndTime     time.Time              `json:"end_time"`
 }
 
 type PostPayload struct {
@@ -55,6 +64,7 @@ type PostPayload struct {
 	Tags        []string               `json:"tags,omitempty"`
 	ParentId    string                 `json:"parent_run_id,omitempty"`
 	Extras      map[string]interface{} `json:"extras,omitempty"`
+	Events      []Event                `json:"events,omitempty"`
 }
 
 type PatchPayload struct {
@@ -93,31 +103,4 @@ func (r RunType) MarshalJSON() ([]byte, error) {
 	buffer.WriteString(r.String())
 	buffer.WriteString(`"`)
 	return buffer.Bytes(), nil
-}
-
-// SetRunId sets the run id
-func SetRunId(runId string) {
-	runID.Store(runId)
-}
-
-// GetRunId gets the run id
-func GetRunId() string {
-	if runID.Load() == nil {
-		return ""
-
-	}
-	return runID.Load().(string)
-}
-
-// SetParentId sets the parent id
-func SetParentId(parentId string) {
-	parentID.Store(parentId)
-}
-
-// GetParentId gets the parent id
-func GetParentId() string {
-	if parentID.Load() == nil {
-		return ""
-	}
-	return parentID.Load().(string)
 }
