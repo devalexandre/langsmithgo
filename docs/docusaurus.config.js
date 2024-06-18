@@ -81,7 +81,7 @@ const config = {
           {to: '/docs', label: 'Docs', position: 'left'},
           {to: '/blog', label: 'Blog', position: 'left'},
           {
-            href: 'https://github.com/facebook/docusaurus',
+            href: 'https://github.com/devalexandre/langsmithgo',
             label: 'GitHub',
             position: 'right',
           },
@@ -91,11 +91,15 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'Projects',
             items: [
               {
-                label: 'Docs',
-                to: '/docs',
+                label: 'LangchainGo',
+                to: 'https://tmc.github.io/langchaingo/docs/',
+              },
+              {
+                label: 'LangSmith',
+                to: 'https://smith.langchain.com/',
               },
             ],
           },
@@ -103,16 +107,12 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
                 label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
+                href: 'https://discord.gg/cU2adEyC7w',
               },
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
+                href: 'https://x.com/LangChainAI',
               },
             ],
           },
@@ -125,12 +125,17 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                href: 'https://github.com/devalexandre/langsmithgo',
               },
+              {
+                label: 'Telegram',
+                href: 'https://t.me/langchaingo',
+              }
+
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} LangSmithGo, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
