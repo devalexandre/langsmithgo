@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[472],{5513:s=>{s.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"LangsmithGo: Integrating LLMs and AI Tools in Go Applications","permalink":"/langsmithgo/blog/langsmithgo-integrating-llms-and-ai-tools-in-go-applications","unlisted":false}]}')}}]);

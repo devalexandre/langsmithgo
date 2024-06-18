@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[634],{192:(s,c,e)=>{e.r(c),e.d(c,{default:()=>d});e(6540);var t=e(6347),u=e(4848);function d(){return(0,u.jsx)(t.rd,{to:"/langsmithgo/docs"})}}}]);

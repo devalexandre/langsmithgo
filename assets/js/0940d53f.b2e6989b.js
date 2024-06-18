@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[544],{8400:s=>{s.exports=JSON.parse('{"tags":[{"label":"News","permalink":"/langsmithgo/blog/tags/news","description":"News about LangSmith","count":1}]}')}}]);
