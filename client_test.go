@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -13,6 +14,8 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	os.Setenv("LANGSMITH_API_KEY", "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")
+	os.Setenv("LANGSMITH_PROJECT_NAME", "langsmithgo")
 	m.Run()
 
 }
@@ -307,5 +310,138 @@ func TestRun(t *testing.T) {
 			log.Fatal(err)
 		}
 
+	})
+	t.Run("use with metadata", func(t *testing.T) {
+		runId := uuid.New().String()
+		client, err := NewClient()
+		if err != nil {
+			t.Errorf("Error creating client: %v", err)
+		}
+
+		err = client.Run(&RunPayload{
+			RunID:       runId,
+			Name:        "langsmithgo-metadata",
+			SessionName: "langsmithgo",
+			RunType:     LLM,
+			Tags:        []string{"metadata"},
+			Inputs: map[string]interface{}{
+				"prompt": "Sample prompt for metadata test",
+			},
+			Extras: map[string]interface{}{
+				"metadata_key": "metadata_value",
+			},
+		})
+
+		if err != nil {
+			t.Errorf("Error running: %v", err)
+		}
+
+		err = client.Run(&RunPayload{
+			RunID: runId,
+			Outputs: map[string]interface{}{
+				"output": "metadata test",
+			},
+		})
+
+		if err != nil {
+			t.Errorf("Error running: %v", err)
+		}
+
+		fmt.Println("Metadata test completed successfully")
+	})
+
+	t.Run("use with tools", func(t *testing.T) {
+		runId := uuid.New().String()
+		client, err := NewClient()
+		if err != nil {
+			t.Errorf("Error creating client: %v", err)
+		}
+
+		err = client.Run(&RunPayload{
+			RunID:       runId,
+			Name:        "langsmithgo-tools",
+			SessionName: "langsmithgo",
+			RunType:     Tool,
+			Tags:        []string{"tool"},
+			Inputs: map[string]interface{}{
+				"tool_input_key": "tool_input_value",
+				"tool": map[string]interface{}{
+					"name":        "Sample Tool",
+					"description": "A sample tool used within the run",
+					"parameters": map[string]interface{}{
+						"param1": "value1",
+						"param2": "value2",
+					},
+				},
+			},
+			Extras: map[string]interface{}{
+				"OS": "Linux",
+			},
+		})
+
+		if err != nil {
+			t.Errorf("Error running: %v", err)
+		}
+
+		err = client.Run(&RunPayload{
+			RunID: runId,
+			Outputs: map[string]interface{}{
+				"output": "tools test",
+			},
+		})
+
+		if err != nil {
+			t.Errorf("Error running: %v", err)
+		}
+
+		fmt.Println("Tools test completed successfully")
+	})
+
+	t.Run("use with events", func(t *testing.T) {
+		runId := uuid.New().String()
+		client, err := NewClient()
+		if err != nil {
+			t.Errorf("Error creating client: %v", err)
+		}
+
+		err = client.Run(&RunPayload{
+			RunID:       runId,
+			Name:        "langsmithgo-events",
+			SessionName: "langsmithgo",
+			RunType:     LLM,
+			Tags:        []string{"events"},
+			Inputs: map[string]interface{}{
+				"prompt": "Sample prompt for events test",
+			},
+			Events: []Event{
+				{
+					EventName: "Event 1",
+					Reason:    "Initial test event",
+					Value:     "event_value 1",
+				},
+				{
+					EventName: "Event 2",
+					Reason:    "Follow-up test event",
+					Value:     "event_value 2",
+				},
+			},
+		})
+
+		if err != nil {
+			t.Errorf("Error running: %v", err)
+		}
+
+		err = client.Run(&RunPayload{
+			RunID: runId,
+			Outputs: map[string]interface{}{
+				"output": "events test",
+			},
+		})
+
+		if err != nil {
+			t.Errorf("Error running: %v", err)
+		}
+
+		fmt.Println("Events test completed successfully")
 	})
 }
