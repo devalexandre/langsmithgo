@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	BASE_URL = "https://api.smith.langchain.com"
+	BASE_URL = "https://api.smith.langchain.com/api/v1"
 )
 
 type Response struct {
@@ -29,7 +29,7 @@ type RunPayload struct {
 	Tags        []string               `json:"tags"`
 	Outputs     map[string]interface{} `json:"outputs"`
 	EndTime     time.Time              `json:"end_time"`
-	Extras      map[string]interface{} `json:"extras"`
+	Extras      map[string]interface{} `json:"extra"`
 	Events      []Event                `json:"events"`
 }
 
@@ -48,7 +48,7 @@ type SimplePayload struct {
 	SessionName string                 `json:"session_name"`
 	Tags        []string               `json:"tags,omitempty"`
 	ParentId    string                 `json:"parent_run_id,omitempty"`
-	Extras      map[string]interface{} `json:"extras,omitempty"`
+	Extras      map[string]interface{} `json:"extra,omitempty"`
 	Events      []Event                `json:"events,omitempty"`
 	Outputs     map[string]interface{} `json:"outputs"`
 	EndTime     time.Time              `json:"end_time"`
@@ -63,7 +63,7 @@ type PostPayload struct {
 	SessionName string                 `json:"session_name"`
 	Tags        []string               `json:"tags,omitempty"`
 	ParentId    string                 `json:"parent_run_id,omitempty"`
-	Extras      map[string]interface{} `json:"extras,omitempty"`
+	Extras      map[string]interface{} `json:"extra,omitempty"`
 	Events      []Event                `json:"events,omitempty"`
 }
 

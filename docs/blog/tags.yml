@@ -1,0 +1,8 @@
+tutorial:
+  label: Tutorial
+  permalink: /tutorial
+  description: Tutorial about LangSmith
+news:
+  label: News
+  permalink: /news
+  description: News about LangSmith
