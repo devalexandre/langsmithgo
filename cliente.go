@@ -69,6 +69,8 @@ func (c *Client) PatchRun(id string, input *RunPayload) error {
 		Outputs: input.Outputs,
 		EndTime: time.Now().UTC(),
 		Events:  input.Events,
+		Extras:  input.Extras,
+		Error:   input.Error,
 	}
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
