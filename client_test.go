@@ -14,11 +14,12 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("LANGSMITH_API_KEY", "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")
-	os.Setenv("LANGSMITH_PROJECT_NAME", "langsmithgo")
+	os.Setenv("LANGSMITH_API_KEY", "")
+	os.Setenv("LANGSMITH_PROJECT_NAME", "")
+	os.Setenv("OPENAI_API_KEY", "")
 	m.Run()
-
 }
+
 func TestRun(t *testing.T) {
 	t.Run("use with GenerateFromSinglePrompt", func(t *testing.T) {
 
@@ -32,11 +33,13 @@ func TestRun(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error creating LLM: %v", err)
 		}
+		sessionId := uuid.New().String()
 		runId := uuid.New().String()
 		ctx := context.Background()
 		err = client.Run(&RunPayload{
 			RunID:       runId,
 			Name:        "langsmithgo-chain",
+			SessionID:   sessionId,
 			SessionName: "langsmithgo",
 			RunType:     Chain,
 			Inputs: map[string]interface{}{
@@ -58,8 +61,7 @@ func TestRun(t *testing.T) {
 			log.Fatalf("error generating completion: %v", err)
 		}
 
-		err = client.Run(&RunPayload{
-			RunID: runId,
+		err = client.PatchRun(runId, &RunPayload{
 			Outputs: map[string]interface{}{
 				"output": completion,
 			},
@@ -73,6 +75,7 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("use with Chain", func(t *testing.T) {
+		sessionId := uuid.New().String()
 		runId := uuid.New().String()
 		// Create a new client
 		client, err := NewClient()
@@ -97,6 +100,7 @@ func TestRun(t *testing.T) {
 		err = client.Run(&RunPayload{
 			RunID:       runId,
 			Name:        "langsmithgo-llm",
+			SessionID:   sessionId,
 			SessionName: "langsmithgo",
 			RunType:     LLM,
 			Tags:        []string{"llm"},
@@ -115,8 +119,7 @@ func TestRun(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error running: %v", err)
 		}
-		err = client.Run(&RunPayload{
-			RunID: runId,
+		err = client.PatchRun(runId, &RunPayload{
 			Outputs: map[string]interface{}{
 				"output": out,
 			},
@@ -130,6 +133,7 @@ func TestRun(t *testing.T) {
 
 	// use 2 chains
 	t.Run("use with 2 traces", func(t *testing.T) {
+		sessionId := uuid.New().String()
 		runId := uuid.New().String()
 		// Create a new client
 		client, err := NewClient()
@@ -156,7 +160,8 @@ func TestRun(t *testing.T) {
 		err = client.Run(&RunPayload{
 			RunID:       runId,
 			Name:        "langsmithgo-llm",
-			SessionName: "langsmithgo",
+			SessionID:   sessionId,
+			SessionName: "langsmithgo-2-chains",
 			RunType:     LLM,
 			Tags:        []string{"llm"},
 			Inputs: map[string]interface{}{
@@ -176,8 +181,7 @@ func TestRun(t *testing.T) {
 
 		}
 
-		err = client.Run(&RunPayload{
-			RunID: runId,
+		err = client.PatchRun(runId, &RunPayload{
 			Outputs: map[string]interface{}{
 				"output": out,
 			},
@@ -192,8 +196,9 @@ func TestRun(t *testing.T) {
 		err = client.Run(&RunPayload{
 			RunID:       runEmbedId,
 			ParentID:    runId,
-			Name:        "langsmithgo-llm",
-			SessionName: "langsmithgo",
+			Name:        "langsmithgo-embed",
+			SessionID:   sessionId,
+			SessionName: "langsmithgo-2-chains",
 			RunType:     Embedding,
 			Tags:        []string{"llm"},
 			Inputs: map[string]interface{}{
@@ -212,8 +217,7 @@ func TestRun(t *testing.T) {
 			t.Errorf("Error running: %v", err)
 		}
 
-		err = client.Run(&RunPayload{
-			RunID: runEmbedId,
+		err = client.PatchRun(runEmbedId, &RunPayload{
 			Outputs: map[string]interface{}{
 				"output": embedings,
 			},
@@ -226,6 +230,7 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("use with 2 traces and SimpleRun", func(t *testing.T) {
+		sessionId := uuid.New().String()
 		// Create a new client
 		runId := uuid.New().String()
 
@@ -258,6 +263,7 @@ func TestRun(t *testing.T) {
 		runPayload := &RunPayload{
 			RunID:       runId,
 			Name:        "langsmithgo-llm",
+			SessionID:   sessionId,
 			SessionName: "langsmithgo",
 			RunType:     LLM,
 			Tags:        []string{"llm"},
@@ -291,6 +297,7 @@ func TestRun(t *testing.T) {
 		err = client.RunSingle(&RunPayload{
 			RunID:       runEmbedId,
 			Name:        "langsmithgo-llm",
+			SessionID:   sessionId,
 			SessionName: "langsmithgo",
 			RunType:     Embedding,
 			StartTime:   startTime,
@@ -312,6 +319,7 @@ func TestRun(t *testing.T) {
 
 	})
 	t.Run("use with metadata", func(t *testing.T) {
+		sessionId := uuid.New().String()
 		runId := uuid.New().String()
 		client, err := NewClient()
 		if err != nil {
@@ -321,6 +329,7 @@ func TestRun(t *testing.T) {
 		err = client.Run(&RunPayload{
 			RunID:       runId,
 			Name:        "langsmithgo-metadata",
+			SessionID:   sessionId,
 			SessionName: "langsmithgo",
 			RunType:     LLM,
 			Tags:        []string{"metadata"},
@@ -336,8 +345,7 @@ func TestRun(t *testing.T) {
 			t.Errorf("Error running: %v", err)
 		}
 
-		err = client.Run(&RunPayload{
-			RunID: runId,
+		err = client.PatchRun(runId, &RunPayload{
 			Outputs: map[string]interface{}{
 				"output": "metadata test",
 			},
@@ -351,6 +359,7 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("use with tools", func(t *testing.T) {
+		sessionId := uuid.New().String()
 		runId := uuid.New().String()
 		client, err := NewClient()
 		if err != nil {
@@ -360,6 +369,7 @@ func TestRun(t *testing.T) {
 		err = client.Run(&RunPayload{
 			RunID:       runId,
 			Name:        "langsmithgo-tools",
+			SessionID:   sessionId,
 			SessionName: "langsmithgo",
 			RunType:     Tool,
 			Tags:        []string{"tool"},
@@ -383,8 +393,7 @@ func TestRun(t *testing.T) {
 			t.Errorf("Error running: %v", err)
 		}
 
-		err = client.Run(&RunPayload{
-			RunID: runId,
+		err = client.PatchRun(runId, &RunPayload{
 			Outputs: map[string]interface{}{
 				"output": "tools test",
 			},
@@ -398,6 +407,7 @@ func TestRun(t *testing.T) {
 	})
 
 	t.Run("use with events", func(t *testing.T) {
+		sessionId := uuid.New().String()
 		runId := uuid.New().String()
 		client, err := NewClient()
 		if err != nil {
@@ -407,6 +417,7 @@ func TestRun(t *testing.T) {
 		err = client.Run(&RunPayload{
 			RunID:       runId,
 			Name:        "langsmithgo-events",
+			SessionID:   sessionId,
 			SessionName: "langsmithgo",
 			RunType:     LLM,
 			Tags:        []string{"events"},
@@ -431,8 +442,7 @@ func TestRun(t *testing.T) {
 			t.Errorf("Error running: %v", err)
 		}
 
-		err = client.Run(&RunPayload{
-			RunID: runId,
+		err = client.PatchRun(runId, &RunPayload{
 			Outputs: map[string]interface{}{
 				"output": "events test",
 			},

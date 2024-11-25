@@ -25,6 +25,7 @@ type RunPayload struct {
 	StartTime   time.Time              `json:"start_time"`
 	Inputs      map[string]interface{} `json:"inputs"`
 	ParentID    string                 `json:"parent_run_id"`
+	SessionID   string                 `json:"session_id"`
 	SessionName string                 `json:"session_name"`
 	Tags        []string               `json:"tags"`
 	Outputs     map[string]interface{} `json:"outputs"`
@@ -46,6 +47,7 @@ type SimplePayload struct {
 	RunType     RunType                `json:"run_type"`
 	StartTime   time.Time              `json:"start_time"`
 	Inputs      map[string]interface{} `json:"inputs"`
+	SessionID   string                 `json:"session_id"`
 	SessionName string                 `json:"session_name"`
 	Tags        []string               `json:"tags,omitempty"`
 	ParentId    string                 `json:"parent_run_id,omitempty"`
@@ -61,6 +63,7 @@ type PostPayload struct {
 	RunType     RunType                `json:"run_type"`
 	StartTime   time.Time              `json:"start_time"`
 	Inputs      map[string]interface{} `json:"inputs"`
+	SessionID   string                 `json:"session_id"`
 	SessionName string                 `json:"session_name"`
 	Tags        []string               `json:"tags,omitempty"`
 	ParentId    string                 `json:"parent_run_id,omitempty"`
